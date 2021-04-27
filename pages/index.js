@@ -15,13 +15,12 @@ export default function Index(props) {
   
   function setGenDT() {
       genDT = new Tabulator("#table", {
-      layout: "fitDataStretch",
       columns: [
-        { title: "사업소명", field: "branch", width: 150, editor:"input" },
-        { title: "행정구역", field: "district", width: 150, editor:"input" },
-        { title: "태양광명", field: "sunlight", sorter: "date", width: 150, editor:"input"},
+        { title: "사업소명", field: "branch", editor:"input" },
+        { title: "행정구역", field: "district", editor:"input" },
+        { title: "태양광명", field: "sunlight", sorter: "date", editor:"input"},
         // { title: "용량 MW", field: "amountsMW", width: 150, editor:"input" },
-        { title: "일시", field: "date", width: 150 },
+        { title: "일시", field: "date", width: 150, sorter:"date"},
         { title: "발전량 kWh", field: "amountsKWH", width: 150 }
       ],
     });
@@ -69,12 +68,16 @@ export default function Index(props) {
     })
     
     genDT.replaceData(tmp);
-
   }
+
+  function downDT(){
+    genDT.download("xlsx", "generation.xlsx", {sheetName:"발전소 원천 데이터"});
+  };
 
   useEffect(() => {
     setGenDT();
     getGenData();
+   
   }, []);
 
   return (
@@ -88,7 +91,7 @@ export default function Index(props) {
       <div>
         <h1>발전소 데이터</h1>
        
-        <Button color='green'>엑셀 다운로드</Button>
+        <Button color='green' onClick={downDT}>엑셀 다운로드</Button>
         <div id="table"></div>
       </div>
     </div>
@@ -99,7 +102,7 @@ export default function Index(props) {
 
 export async function getServerSideProps(context) {
   const { db } = await connectToDatabase();
-  const rawData = await db.collection("generation").find({}).limit(20).toArray();
+  const rawData = await db.collection("generation").find({}).limit(100).toArray();
   // const data2 = await db.collection("generation").aggregate({
   //   $match : {
   //     "0:00" : "<value>"

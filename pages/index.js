@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react';
 import { connectToDatabase } from '../util/mongodb';
 import Tabulator from "tabulator-tables";
-import { Button } from 'semantic-ui-react';
+import { Button, Form } from 'semantic-ui-react';
 import 'tabulator-tables/dist/js/tabulator.min.js';
 import "tabulator-tables/dist/css/tabulator.min.css"; 
 import 'semantic-ui-css/semantic.min.css';
@@ -67,18 +67,6 @@ export default function Index(props) {
       }
     });
 
-    // data.map(item => {
-    //   item.amountsKWH.map((genAmounts, idx) =>{
-    //     tmp.push({
-    //       branch : item.branch,
-    //       district : item.district,
-    //       sunlight : item.sunlight,
-    //       date: item.date + " " + timeLine[idx],
-    //       amountsKWH: genAmounts
-    //     });
-    //   });     
-    // })
-    
     genDT.replaceData(tmp);
   }
 
@@ -96,13 +84,15 @@ export default function Index(props) {
     <>
     <div>
       <Head>
-        <title>Create Next App</title>
+        <title>발전소 데이터 가공</title>
         <link rel="icon" href="/favicon.ico" />
         <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
       </Head>
       <div>
         <h1>발전소 데이터</h1>
-       
+
+        <Form.Input label='Small' fluid label='발전소명' placeholder='발전소명을 입력하세요!' />
+        <Button color='orange' onClick={getGenData}>데이터 호출</Button>
         <Button color='green' onClick={downDT}>엑셀 다운로드</Button>
         <div id="table"></div>
       </div>
@@ -117,7 +107,6 @@ export async function getServerSideProps(context) {
 
   // *** 이 부분 수정해서 사용하면 됨!
   const rawData = await db.collection("generation").find({}).toArray();
-  // const rawData = await db.collection("generation").find({}).limit(100).toArray();
   // const rawData = await db.collection("generation").find({}).skip(100).limit(100).toArray();
 
 
@@ -126,7 +115,6 @@ export async function getServerSideProps(context) {
   const filteredData  = parsingData.map((item)=>{
     return{
       id : item._id,
-      branch : "한국남동발전",
       district : item.행정구역,
       sunlight : item.태양광명,
       // amountsKWH : item.배터리용량,  //원천 데이터 파일에 값이 있을 수도 있고, 없을 수도 있어서 일단 제외

@@ -54,18 +54,29 @@ export default function Index(props) {
       "23:00"
     ]
     let tmp = [];
-    data.map(item => {
-      item.amountsKWH.map((genAmounts, idx) =>{
-        console.log(item.data);
+    data.map((item, idx) => {
+      for(let i=0 ; i < 24 ; i++){
         tmp.push({
-          branch : item.branch,
-          district : item.district,
-          sunlight : item.sunlight,
-          date: item.date + " " + timeLine[idx],
-          amountsKWH: genAmounts
-        });
-      });     
-    })
+                branch : item.branch,
+                district : item.district,
+                sunlight : item.sunlight,
+                date: item.date + " " + timeLine[i],
+                amountsKWH: item.amountsKWH[i]
+              });
+      }
+    });
+
+    // data.map(item => {
+    //   item.amountsKWH.map((genAmounts, idx) =>{
+    //     tmp.push({
+    //       branch : item.branch,
+    //       district : item.district,
+    //       sunlight : item.sunlight,
+    //       date: item.date + " " + timeLine[idx],
+    //       amountsKWH: genAmounts
+    //     });
+    //   });     
+    // })
     
     genDT.replaceData(tmp);
   }
@@ -102,14 +113,12 @@ export default function Index(props) {
 
 export async function getServerSideProps(context) {
   const { db } = await connectToDatabase();
-  const rawData = await db.collection("generation").find({}).limit(100).toArray();
-  // const data2 = await db.collection("generation").aggregate({
-  //   $match : {
-  //     "0:00" : "<value>"
-  //   }
-  // });
-  
-  // console.log(data2)
+
+  // *** 이 부분 수정해서 사용하면 됨!
+  // const rawData = await db.collection("generation").find({}).limit(100).toArray();
+  const rawData = await db.collection("generation").find({}).skip(100).limit(100).toArray();
+
+
 
   const parsingData = JSON.parse(JSON.stringify(rawData));
   const filteredData  = parsingData.map((item)=>{
@@ -146,7 +155,6 @@ export async function getServerSideProps(context) {
         item.시간22,
         item.시간23
       ]
-
     }
   })
 

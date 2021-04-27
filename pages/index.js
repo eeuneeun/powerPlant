@@ -15,14 +15,15 @@ export default function Index(props) {
   
   function setGenDT() {
       genDT = new Tabulator("#table", {
-      columns: [
-        { title: "사업소명", field: "branch", editor:"input" },
-        { title: "행정구역", field: "district", editor:"input" },
-        { title: "태양광명", field: "sunlight", sorter: "date", editor:"input"},
-        // { title: "용량 MW", field: "amountsMW", width: 150, editor:"input" },
-        { title: "일시", field: "date", width: 150, sorter:"date"},
-        { title: "발전량 kWh", field: "amountsKWH", width: 150 }
-      ],
+        height:800, 
+        columns: [
+          { title: "사업소명", field: "branch", editor:"input" },
+          { title: "행정구역", field: "district", editor:"input" },
+          { title: "태양광명", field: "sunlight", sorter: "date", editor:"input"},
+          // { title: "용량 MW", field: "amountsMW", width: 150, editor:"input" },
+          { title: "일시", field: "date", width: 150, sorter:"date"},
+          { title: "발전량 kWh", field: "amountsKWH", width: 150 }
+        ],
     });
   }
 
@@ -115,8 +116,9 @@ export async function getServerSideProps(context) {
   const { db } = await connectToDatabase();
 
   // *** 이 부분 수정해서 사용하면 됨!
+  const rawData = await db.collection("generation").find({}).toArray();
   // const rawData = await db.collection("generation").find({}).limit(100).toArray();
-  const rawData = await db.collection("generation").find({}).skip(100).limit(100).toArray();
+  // const rawData = await db.collection("generation").find({}).skip(100).limit(100).toArray();
 
 
 

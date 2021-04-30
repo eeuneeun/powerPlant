@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { connectToDatabase } from '../util/mongodb';
 import Tabulator from "tabulator-tables";
 import { Button, Form } from 'semantic-ui-react';
@@ -11,23 +11,26 @@ import 'semantic-ui-css/semantic.min.css';
 export default function Index(props) {
   
   const data = props.data;
+  const [branchName, setBranchName] = useState("");
   let genDT = null;
-  
+ 
   function setGenDT() {
       genDT = new Tabulator("#table", {
+        layout:"fitColumns",
         height:800, 
         columns: [
           { title: "사업소명", field: "branch", editor:"input" },
           { title: "행정구역", field: "district", editor:"input" },
           { title: "태양광명", field: "sunlight", sorter: "date", editor:"input"},
           // { title: "용량 MW", field: "amountsMW", width: 150, editor:"input" },
-          { title: "일시", field: "date", width: 150, sorter:"date"},
-          { title: "발전량 kWh", field: "amountsKWH", width: 150 }
+          { title: "일시", field: "date", sorter:"date"},
+          { title: "발전량 kWh", field: "amountsKWH" }
         ],
     });
   }
 
   function getGenData(){
+    let tmp = [];
     const timeLine = [
       "0:00",
       "1:00",
@@ -54,22 +57,34 @@ export default function Index(props) {
       "22:00",
       "23:00"
     ]
-    let tmp = [];
-    data.map((item, idx) => {
+
+    data.map((item) => {
       for(let i=0 ; i < 24 ; i++){
         tmp.push({
-                branch : item.branch,
-                district : item.district,
-                sunlight : item.sunlight,
-                date: item.date + " " + timeLine[i],
-                amountsKWH: item.amountsKWH[i]
-              });
+          branch : branchName,
+          district : item.district,
+          sunlight : item.sunlight,
+          date: item.date + " " + timeLine[i],
+          amountsKWH: item.amountsKWH[i]
+        });
       }
-    });
-
-    genDT.replaceData(tmp);
+    })
+    
+    // setTimeout(() => {
+      genDT.replaceData(tmp)
+    // }, 10000);
   }
+    
+  function addBranch(){
+    if(branchName == ""){
+      alert("발전소명을 입력하세요!");
+      return false;
+    }
 
+    console.log(genDT)
+    genDT.updateData([{branch:branchName}]);
+  }
+  
   function downDT(){
     genDT.download("xlsx", "generation.xlsx", {sheetName:"발전소 원천 데이터"});
   };
@@ -77,24 +92,37 @@ export default function Index(props) {
   useEffect(() => {
     setGenDT();
     getGenData();
-   
   }, []);
 
   return (
     <>
-    <div>
+    <div className="wrap">
       <Head>
         <title>발전소 데이터 가공</title>
         <link rel="icon" href="/favicon.ico" />
         <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
       </Head>
-      <div>
-        <h1>발전소 데이터</h1>
 
-        <Form.Input label='Small' fluid label='발전소명' placeholder='발전소명을 입력하세요!' />
-        <Button color='orange' onClick={getGenData}>데이터 호출</Button>
-        <Button color='green' onClick={downDT}>엑셀 다운로드</Button>
-        <div id="table"></div>
+      <div className="main">
+        <header>
+          <h1>발전소 데이터</h1>
+        </header>
+
+        <div className="container">
+          <Form className="flex-center">
+            <Form.Field>
+              <label>발전소명</label>
+              <Form.Input placeholder='발전소명을 입력하세요!' value={branchName} onChange={(e)=>setBranchName(e.target.value)} id="branchName"/>
+            </Form.Field>
+            
+            <div className="btn-group">
+              <Button color='orange' onClick={addBranch}>데이터 호출</Button>
+              <Button color='green' onClick={downDT}>엑셀 다운로드</Button>
+            </div>
+          </Form>
+          
+          <div id="table"></div>
+        </div>
       </div>
     </div>
     </>

@@ -1,0 +1,11 @@
+.flex-center{display: flex; align-items: center; justify-content: space-between;}
+
+.wrap{width: 100%;}
+.wrap .main{width: 100%;}
+
+.wrap .main header,
+.wrap .main .container {width: 100%; max-width: 700px; margin: 0 auto;}
+    .wrap .main header h1{font-size: 18px; text-align: center; padding: 20px 0;}
+
+.wrap .main .container .field label{font-size: 16px; margin-right: 15px;}
+.wrap .main .container .btn-group{margin-left: 15px;}
